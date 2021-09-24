@@ -21,16 +21,39 @@
  * or have any questions.
  */
 
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, UseInterceptors } from '@nestjs/common';
 
 import { AppService } from './app.service';
+import { GetUserDto } from './dto/get-user.dto';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
+import { ErrorsInterceptor } from './interceptors/errors.interceptor';
 
 @Controller()
+@UseInterceptors(TransformInterceptor, ErrorsInterceptor)
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
-  @Get()
-  getData() {
-    return this.appService.getData();
+  @Get('/:email')
+  async getUserByEmail(@Param("email") email: string) {
+    const data = await this.appService.getUserByEmail(email)
+    if (!data) {
+      throw new NotFoundException()
+    }
+    const final: GetUserDto = {
+      _id: data._id,
+      showAds: data.showAds,
+      verified: data.verified,
+      role: data.role,
+      password: data.password,
+      preferredLanguage: data.preferredLanguage,
+      avatar: data.avatar,
+      email: data.email,
+      displayName: data.displayName,
+      castcleId: data.castcleId,
+      id: data.id,
+      created: data.created,
+      updated: data.updated,
+    }
+    return { payload: final, message: "Success" }
   }
 }

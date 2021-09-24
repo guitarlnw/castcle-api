@@ -20,27 +20,41 @@
  * Thailand 10160, or visit www.castcle.com if you need additional information 
  * or have any questions.
  */
+import { CallHandler } from '@nestjs/common';
+import { map } from 'rxjs/operators';
+import { TransformInterceptor } from './transform.interceptor';
 
-import { Logger, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+const mockMap = map as jest.Mock;
+jest.mock('rxjs/operators', () => {
+  return {
+    map: jest.fn()
+  };
+});
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserSeeder } from './database/seeders/user.seeder';
-import { User, UserSchema } from './schemas/user.schema';
+describe('ErrorsInterceptor', () => {
+  const interceptor = new TransformInterceptor();
+  const executionContext: any = jest.fn()
+  const callHandler = {
+    handle: () => ({
+      pipe: (catchError) => {
+        return catchError
+      }
+    })
+  };
 
-@Module({
-  imports: [
-    MongooseModule.forRoot(process.env.DB_CONNECTION),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
-  controllers: [AppController],
-  providers: [AppService, UserSeeder],
-})
-export class AppModule {
-  constructor(private readonly userSeeder: UserSeeder) {
-    this.userSeeder.seed()
-      .then(() => { Logger.log("Seed success") })
-      .catch(() => { Logger.log("Seed fail") })
-  }
-}
+  beforeEach(() => {
+    jest.resetAllMocks()
+  })
+
+  it('should return custom format when intercept was called', () => {
+    const mockData = {
+      payload: "data",
+      message: "Success"
+    }
+    const mapSpy = jest.fn((cb) => cb(mockData))
+    mockMap.mockImplementationOnce(mapSpy)
+    const result = interceptor.intercept(executionContext, callHandler as CallHandler)
+    expect(mapSpy).toBeCalledTimes(1)
+    expect(result).toEqual(mockData)
+  });
+});

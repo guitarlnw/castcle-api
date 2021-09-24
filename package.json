@@ -29,10 +29,14 @@
   "dependencies": {
     "@nestjs/common": "^7.0.0",
     "@nestjs/core": "^7.0.0",
+    "@nestjs/mongoose": "^8.0.1",
     "@nestjs/platform-express": "^7.0.0",
+    "bcrypt": "^5.0.1",
+    "mongoose": "^6.0.7",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~6.6.3",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@nestjs/schematics": "^7.0.0",
@@ -45,6 +49,7 @@
     "@nrwl/node": "12.5.8",
     "@nrwl/tao": "12.5.8",
     "@nrwl/workspace": "12.5.8",
+    "@types/bcrypt": "^5.0.0",
     "@types/jest": "26.0.8",
     "@types/node": "14.14.33",
     "@typescript-eslint/eslint-plugin": "4.19.0",

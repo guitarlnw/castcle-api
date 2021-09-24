@@ -21,26 +21,31 @@
  * or have any questions.
  */
 
-import { Logger, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserSeeder } from './database/seeders/user.seeder';
-import { User, UserSchema } from './schemas/user.schema';
+import { User, UserDocument } from '../../schemas/user.schema';
+import { userData } from '../../database/data/user.data';
+import { CreateUserDto } from '../../dto/create-user.dto';
 
-@Module({
-  imports: [
-    MongooseModule.forRoot(process.env.DB_CONNECTION),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
-  controllers: [AppController],
-  providers: [AppService, UserSeeder],
-})
-export class AppModule {
-  constructor(private readonly userSeeder: UserSeeder) {
-    this.userSeeder.seed()
-      .then(() => { Logger.log("Seed success") })
-      .catch(() => { Logger.log("Seed fail") })
+@Injectable()
+export class UserSeeder {
+  constructor(
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+  ) { }
+
+  async seed(): Promise<User[]> {
+    const data: CreateUserDto[] = userData
+    const userCount: number = await this.userModel.count()
+    if (userCount === 0) {
+      return Promise.all([
+        ...data.map((val): Promise<User> => {
+          const createdCat = new this.userModel(val);
+          return createdCat.save();
+        })
+      ])
+    }
+    return null
   }
 }

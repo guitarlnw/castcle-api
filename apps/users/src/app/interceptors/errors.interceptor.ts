@@ -21,26 +21,48 @@
  * or have any questions.
  */
 
-import { Logger, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+  NotFoundException,
+  InternalServerErrorException
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserSeeder } from './database/seeders/user.seeder';
-import { User, UserSchema } from './schemas/user.schema';
+export interface Error {
+  code: number;
+  message: string;
+  error?: any;
+}
 
-@Module({
-  imports: [
-    MongooseModule.forRoot(process.env.DB_CONNECTION),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
-  controllers: [AppController],
-  providers: [AppService, UserSeeder],
-})
-export class AppModule {
-  constructor(private readonly userSeeder: UserSeeder) {
-    this.userSeeder.seed()
-      .then(() => { Logger.log("Seed success") })
-      .catch(() => { Logger.log("Seed fail") })
+export interface ErrorRes {
+  error: Error
+}
+
+@Injectable()
+export class ErrorsInterceptor implements NestInterceptor {
+  intercept(_: ExecutionContext, next: CallHandler): Observable<any> {
+    return next
+      .handle()
+      .pipe(
+        catchError(err => {
+          const errRes: ErrorRes = {
+            error: {
+              code: err.status,
+              message: err.message,
+            }
+          }
+          if (err instanceof NotFoundException) {
+            throw new NotFoundException(errRes);
+          } else if (err instanceof InternalServerErrorException) {
+            throw new InternalServerErrorException(errRes);
+          } else {
+            throw err;
+          }
+        }),
+      );
   }
 }

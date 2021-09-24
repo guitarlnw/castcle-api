@@ -1,38 +1,37 @@
 /*
  * Copyright (c) 2021, Castcle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- * 
+ *
  * This code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3 only, as
  * published by the Free Software Foundation.
- * 
+ *
  * This code is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
  * version 3 for more details (a copy is included in the LICENSE file that
  * accompanied this code).
- * 
+ *
  * You should have received a copy of the GNU General Public License version
  * 3 along with this work; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- * 
- * Please contact Castcle, 22 Phet Kasem 47/2 Alley, Bang Khae, Bangkok, 
- * Thailand 10160, or visit www.castcle.com if you need additional information 
+ *
+ * Please contact Castcle, 22 Phet Kasem 47/2 Alley, Bang Khae, Bangkok,
+ * Thailand 10160, or visit www.castcle.com if you need additional information
  * or have any questions.
  */
 
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { CreateUserDto } from '../../dto/create-user.dto'
 
-import { User, UserDocument } from './schemas/user.schema';
-import { GetUserDto } from './dto/get-user.dto';
-
-@Injectable()
-export class AppService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
-
-  async getUserByEmail(email: string): Promise<GetUserDto> {
-    return await this.userModel.findOne({ email }).exec()
+export const userData: CreateUserDto[] = [
+  {
+    id: "",
+    castcleId: "castcle-avenger",
+    displayName: "castcle-avenger",
+    email: "email@castcle.com",
+    password: "1qazxsw23edc",
+    avatar: "http://image.com",
+    preferredLanguage: ["th", "en"],
+    role: "member"
   }
-}
+]

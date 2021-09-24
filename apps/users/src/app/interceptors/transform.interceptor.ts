@@ -21,26 +21,25 @@
  * or have any questions.
  */
 
-import { Logger, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserSeeder } from './database/seeders/user.seeder';
-import { User, UserSchema } from './schemas/user.schema';
+export interface Response<T> {
+  message: string,
+  payload: T;
+}
 
-@Module({
-  imports: [
-    MongooseModule.forRoot(process.env.DB_CONNECTION),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
-  controllers: [AppController],
-  providers: [AppService, UserSeeder],
-})
-export class AppModule {
-  constructor(private readonly userSeeder: UserSeeder) {
-    this.userSeeder.seed()
-      .then(() => { Logger.log("Seed success") })
-      .catch(() => { Logger.log("Seed fail") })
+@Injectable()
+export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> {
+  intercept(_: ExecutionContext, next: CallHandler): Observable<Response<T>> {
+    return next
+      .handle()
+      .pipe(map(data => {
+        return {
+          payload: data.payload,
+          message: data.message
+        }
+      }));
   }
 }

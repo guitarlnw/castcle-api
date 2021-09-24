@@ -21,26 +21,40 @@
  * or have any questions.
  */
 
-import { Logger, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { userPreSaveHook } from './user.schema';
+import { v4 } from 'uuid';
+import { hash } from 'bcrypt';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserSeeder } from './database/seeders/user.seeder';
-import { User, UserSchema } from './schemas/user.schema';
+const mockUUIDv4 = v4 as jest.Mock;
+const mockHash = hash as jest.Mock;
+jest.mock('uuid', () => {
+  return {
+    v4: jest.fn()
+  };
+});
+jest.mock('bcrypt', () => {
+  return {
+    hash: jest.fn()
+  };
+});
 
-@Module({
-  imports: [
-    MongooseModule.forRoot(process.env.DB_CONNECTION),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
-  controllers: [AppController],
-  providers: [AppService, UserSeeder],
-})
-export class AppModule {
-  constructor(private readonly userSeeder: UserSeeder) {
-    this.userSeeder.seed()
-      .then(() => { Logger.log("Seed success") })
-      .catch(() => { Logger.log("Seed fail") })
-  }
-}
+describe('userPreSaveHook', () => {
+
+  beforeEach(() => {
+    jest.resetAllMocks()
+  })
+
+  test('should execute next middleware, generate uuid and hash password when pre save function was called', async () => {
+    const expectedData = { id: 'd30ba6e3-10e5-44ee-aa7c-d37ffd6c69e9', password: 'zxcvfdsaqwer' }
+    const mNext = jest.fn();
+    const mContext = {
+      id: '',
+      password: 'mock-pass'
+    };
+    mockUUIDv4.mockImplementationOnce(() => expectedData.id)
+    mockHash.mockImplementationOnce(() => expectedData.password)
+    await userPreSaveHook.call(mContext, mNext);
+    expect(mContext).toEqual(expectedData);
+    expect(mNext).toBeCalledTimes(1);
+  });
+});

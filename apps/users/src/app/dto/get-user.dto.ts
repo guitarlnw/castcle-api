@@ -21,26 +21,18 @@
  * or have any questions.
  */
 
-import { Logger, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserSeeder } from './database/seeders/user.seeder';
-import { User, UserSchema } from './schemas/user.schema';
-
-@Module({
-  imports: [
-    MongooseModule.forRoot(process.env.DB_CONNECTION),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
-  controllers: [AppController],
-  providers: [AppService, UserSeeder],
-})
-export class AppModule {
-  constructor(private readonly userSeeder: UserSeeder) {
-    this.userSeeder.seed()
-      .then(() => { Logger.log("Seed success") })
-      .catch(() => { Logger.log("Seed fail") })
-  }
+export class GetUserDto {
+  _id: string;
+  showAds: boolean;
+  verified: boolean;
+  role: string;
+  password?: string;
+  preferredLanguage: string[];
+  avatar: string;
+  email: string;
+  displayName: string;
+  castcleId: string;
+  id: string;
+  created?: string;
+  updated?: string;
 }
