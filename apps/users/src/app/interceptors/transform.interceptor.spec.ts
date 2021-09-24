@@ -31,7 +31,7 @@ jest.mock('rxjs/operators', () => {
   };
 });
 
-describe('ErrorsInterceptor', () => {
+describe('TransformInterceptor', () => {
   const interceptor = new TransformInterceptor();
   const executionContext: any = jest.fn()
   const callHandler = {

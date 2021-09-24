@@ -23,21 +23,39 @@
 
 import { Logger, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { I18nModule, I18nJsonParser } from 'nestjs-i18n';
+import * as path from 'path';
+import { APP_FILTER } from '@nestjs/core';
 
 import { HealthModule } from './health/health.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserSeeder } from './database/seeders/user.seeder';
 import { User, UserSchema } from './schemas/user.schema';
+import { HttpExceptionFilter } from './filters/http-exception.filter'
 
 @Module({
   imports: [
     HealthModule,
     MongooseModule.forRoot(process.env.DB_CONNECTION),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+      parser: I18nJsonParser,
+      parserOptions: {
+        path: path.join(__dirname, '/assets/i18n/'),
+      },
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService, UserSeeder],
+  providers: [
+    AppService,
+    UserSeeder,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {
   constructor(private readonly userSeeder: UserSeeder) {
