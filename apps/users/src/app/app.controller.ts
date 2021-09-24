@@ -28,7 +28,7 @@ import { GetUserDto } from './dto/get-user.dto';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { ErrorsInterceptor } from './interceptors/errors.interceptor';
 
-@Controller()
+@Controller('users')
 @UseInterceptors(TransformInterceptor, ErrorsInterceptor)
 export class AppController {
   constructor(private readonly appService: AppService) { }

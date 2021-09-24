@@ -21,28 +21,24 @@
  * or have any questions.
  */
 
-import { Logger, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { Controller, Get } from '@nestjs/common';
+import { HealthCheck, HealthCheckService, MongooseHealthIndicator } from '@nestjs/terminus';
 
-import { HealthModule } from './health/health.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserSeeder } from './database/seeders/user.seeder';
-import { User, UserSchema } from './schemas/user.schema';
+@Controller('health')
+export class HealthController {
+  constructor(
+    private health: HealthCheckService,
+    private mongoose: MongooseHealthIndicator,
+  ) { }
 
-@Module({
-  imports: [
-    HealthModule,
-    MongooseModule.forRoot(process.env.DB_CONNECTION),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-  ],
-  controllers: [AppController],
-  providers: [AppService, UserSeeder],
-})
-export class AppModule {
-  constructor(private readonly userSeeder: UserSeeder) {
-    this.userSeeder.seed()
-      .then(() => { Logger.log("Seed success") })
-      .catch(() => { Logger.log("Seed fail") })
+  @Get()
+  @HealthCheck()
+  check() {
+    return this.health.check([
+      async () => {
+        return this.mongoose.pingCheck('mongoose')
+      }
+    ]);
   }
 }
+
