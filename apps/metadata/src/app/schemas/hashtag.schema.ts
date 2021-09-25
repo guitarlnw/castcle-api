@@ -24,14 +24,22 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+function transformName(v) {
+  return v;
+}
+
 export type HashtagDocument = Hashtag & Document;
 
-@Schema({ timestamps: { createdAt: 'created', updatedAt: 'updated' } })
+@Schema({
+  timestamps: { createdAt: 'created', updatedAt: 'updated' },
+  toObject: { getters: true },
+  toJSON: { getters: true },
+})
 export class Hashtag {
   @Prop({ required: true, trim: true })
   slug: string;
 
-  @Prop({ required: true, trim: true })
+  @Prop({ required: true, trim: true, get: transformName })
   name: string;
 
   @Prop({ required: true, trim: true })

@@ -38,7 +38,8 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
       .pipe(map(data => {
         return {
           payload: data.payload,
-          message: data.message
+          message: data.message,
+          pagination: data.pagination || undefined,
         }
       }));
   }

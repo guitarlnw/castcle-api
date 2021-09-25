@@ -31,6 +31,8 @@ import { AppService } from './app.service';
 import { HashtagSeeder } from './database/seeders/hashtag.seeder';
 import { HashtagSchema, Hashtag } from './schemas/hashtag.schema';
 import { AuthMiddleware } from './middleware/auth.middleware'
+import { HashtagService } from './hashtag/hashtag.service';
+import { HashtagController } from './hashtag/hashtag.controller';
 
 @Module({
   imports: [
@@ -40,8 +42,15 @@ import { AuthMiddleware } from './middleware/auth.middleware'
     MongooseModule.forRoot(process.env.DB_CONNECTION),
     MongooseModule.forFeature([{ name: Hashtag.name, schema: HashtagSchema }]),
   ],
-  controllers: [AppController],
-  providers: [AppService, HashtagSeeder],
+  controllers: [
+    AppController,
+    HashtagController,
+  ],
+  providers: [
+    AppService,
+    HashtagSeeder,
+    HashtagService,
+  ],
 })
 export class AppModule {
   constructor(private readonly hashtagSeeder: HashtagSeeder) {

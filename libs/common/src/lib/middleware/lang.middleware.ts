@@ -17,7 +17,7 @@ export class LangMiddleware implements NestMiddleware {
         lang = 'th'
         break;
     }
-    req.headers['accept-language'] = lang
+    req.headers['accept-language'] = lang;
     next();
   }
 }
