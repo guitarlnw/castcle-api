@@ -41,8 +41,8 @@ export class UserSeeder {
     if (userCount === 0) {
       return Promise.all([
         ...data.map((val): Promise<User> => {
-          const createdCat = new this.userModel(val);
-          return createdCat.save();
+          const createdData = new this.userModel(val);
+          return createdData.save();
         })
       ])
     }

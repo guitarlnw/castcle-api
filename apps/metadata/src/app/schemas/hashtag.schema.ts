@@ -21,30 +21,21 @@
  * or have any questions.
  */
 
-import { Module, Logger } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { CommonModule } from '@castcle-api/common';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
-import { HealthModule } from './health/health.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { HashtagSeeder } from './database/seeders/hashtag.seeder';
-import { HashtagSchema, Hashtag } from './schemas/hashtag.schema';
+export type HashtagDocument = Hashtag & Document;
 
-@Module({
-  imports: [
-    HealthModule,
-    CommonModule,
-    MongooseModule.forRoot(process.env.DB_CONNECTION),
-    MongooseModule.forFeature([{ name: Hashtag.name, schema: HashtagSchema }]),
-  ],
-  controllers: [AppController],
-  providers: [AppService, HashtagSeeder],
-})
-export class AppModule {
-  constructor(private readonly hashtagSeeder: HashtagSeeder) {
-    this.hashtagSeeder.seed()
-      .then(() => { Logger.log("Seed success") })
-      .catch(() => { Logger.log("Seed fail") })
-  }
+@Schema({ timestamps: { createdAt: 'created', updatedAt: 'updated' } })
+export class Hashtag {
+  @Prop({ required: true, trim: true })
+  slug: string;
+
+  @Prop({ required: true, trim: true })
+  name: string;
+
+  @Prop({ required: true, trim: true })
+  key: string;
 }
+
+export const HashtagSchema = SchemaFactory.createForClass(Hashtag);

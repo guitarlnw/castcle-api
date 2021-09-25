@@ -21,30 +21,38 @@
  * or have any questions.
  */
 
-import { Module, Logger } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { CommonModule } from '@castcle-api/common';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
-import { HealthModule } from './health/health.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { HashtagSeeder } from './database/seeders/hashtag.seeder';
-import { HashtagSchema, Hashtag } from './schemas/hashtag.schema';
+import { Hashtag, HashtagDocument } from '../../schemas/hashtag.schema';
+import { hashtagData } from '../data/hashtag.data';
+import { HashtagDto } from '../../dto/hashtag.dto';
 
-@Module({
-  imports: [
-    HealthModule,
-    CommonModule,
-    MongooseModule.forRoot(process.env.DB_CONNECTION),
-    MongooseModule.forFeature([{ name: Hashtag.name, schema: HashtagSchema }]),
-  ],
-  controllers: [AppController],
-  providers: [AppService, HashtagSeeder],
-})
-export class AppModule {
-  constructor(private readonly hashtagSeeder: HashtagSeeder) {
-    this.hashtagSeeder.seed()
-      .then(() => { Logger.log("Seed success") })
-      .catch(() => { Logger.log("Seed fail") })
+@Injectable()
+export class HashtagSeeder {
+  constructor(
+    @InjectModel(Hashtag.name) private readonly hashtagModel: Model<HashtagDocument>,
+  ) { }
+
+  async seed(): Promise<Hashtag[]> {
+    const data: HashtagDto[] = []
+    const count: number = await this.hashtagModel.count()
+    if (count === 0) {
+      hashtagData.forEach(val => {
+        data.push({
+          slug: `#${val.name}`,
+          name: val.name,
+          key: `hashtag.${val.name}`
+        })
+      });
+      return Promise.all([
+        ...data.map((val): Promise<Hashtag> => {
+          const createdData = new this.hashtagModel(val);
+          return createdData.save();
+        })
+      ])
+    }
+    return null
   }
 }

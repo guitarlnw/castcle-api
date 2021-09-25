@@ -21,30 +21,24 @@
  * or have any questions.
  */
 
-import { Module, Logger } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { CommonModule } from '@castcle-api/common';
+import { Controller, Get } from '@nestjs/common';
+import { HealthCheck, HealthCheckService, MongooseHealthIndicator } from '@nestjs/terminus';
 
-import { HealthModule } from './health/health.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { HashtagSeeder } from './database/seeders/hashtag.seeder';
-import { HashtagSchema, Hashtag } from './schemas/hashtag.schema';
+@Controller('health')
+export class HealthController {
+  constructor(
+    private health: HealthCheckService,
+    private mongoose: MongooseHealthIndicator,
+  ) { }
 
-@Module({
-  imports: [
-    HealthModule,
-    CommonModule,
-    MongooseModule.forRoot(process.env.DB_CONNECTION),
-    MongooseModule.forFeature([{ name: Hashtag.name, schema: HashtagSchema }]),
-  ],
-  controllers: [AppController],
-  providers: [AppService, HashtagSeeder],
-})
-export class AppModule {
-  constructor(private readonly hashtagSeeder: HashtagSeeder) {
-    this.hashtagSeeder.seed()
-      .then(() => { Logger.log("Seed success") })
-      .catch(() => { Logger.log("Seed fail") })
+  @Get()
+  @HealthCheck()
+  check() {
+    return this.health.check([
+      async () => {
+        return this.mongoose.pingCheck('mongoose')
+      }
+    ]);
   }
 }
+
