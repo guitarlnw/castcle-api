@@ -22,10 +22,30 @@
  */
 
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { compare } from 'bcrypt'
+import { UsersService } from './users/users.service';
+import { GetUserDto } from './dto/get-user.dto'
 
 @Injectable()
 export class AppService {
-  getData(): { message: string } {
-    return { message: 'Welcome to authentications!' };
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService
+  ) { }
+
+  async validateUser(username: string, pass: string): Promise<GetUserDto> {
+    const user = await this.usersService.getUserByEmail(username);
+    if (user && await compare(pass, user.password)) {
+      const { password, ...result } = user;
+      return result;
+    }
+    return null;
+  }
+
+  async login(user: GetUserDto) {
+    return {
+      access_token: this.jwtService.sign(user),
+    };
   }
 }

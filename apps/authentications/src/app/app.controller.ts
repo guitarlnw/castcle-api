@@ -21,16 +21,25 @@
  * or have any questions.
  */
 
-import { Controller, Get } from '@nestjs/common';
-
+import { Controller, Request, Post, Get, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private appService: AppService) { }
 
-  @Get()
-  getData() {
-    return this.appService.getData();
+  @UseGuards(AuthGuard('local'))
+  @Post('auth/login')
+  async login(@Request() req) {
+    const result = await this.appService.login(req.user);
+    return { payload: result, message: 'Logged in' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('auth')
+  getProfile() {
+    return { message: 'Authorized' };
   }
 }

@@ -21,29 +21,18 @@
  * or have any questions.
  */
 
-import { Module } from '@nestjs/common';
-import { CommonModule } from '@castcle-api/common';
-import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { LocalStrategy } from './strategy/local.strategy';
-import { jwtConstants } from './constants';
-import { JwtStrategy } from './strategy/jwt.strategy';
-
-@Module({
-  imports: [
-    CommonModule,
-    UsersModule,
-    PassportModule,
-    JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '1800s' },
-    }),
-  ],
-  controllers: [AppController],
-  providers: [AppService, LocalStrategy, JwtStrategy],
-})
-export class AppModule { }
+export class GetUserDto {
+  _id: string;
+  showAds: boolean;
+  verified: boolean;
+  role: string;
+  password?: string;
+  preferredLanguage: string[];
+  avatar: string;
+  email: string;
+  displayName: string;
+  castcleId: string;
+  id: string;
+  created?: string;
+  updated?: string;
+}
