@@ -21,20 +21,22 @@
  * or have any questions.
  */
 
-import { Module, Logger } from '@nestjs/common';
+import { Module, Logger, MiddlewareConsumer, HttpModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CommonModule } from '@castcle-api/common';
+import { CommonModule, LangMiddleware } from '@castcle-api/common';
 
 import { HealthModule } from './health/health.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HashtagSeeder } from './database/seeders/hashtag.seeder';
 import { HashtagSchema, Hashtag } from './schemas/hashtag.schema';
+import { AuthMiddleware } from './middleware/auth.middleware'
 
 @Module({
   imports: [
     HealthModule,
     CommonModule,
+    HttpModule,
     MongooseModule.forRoot(process.env.DB_CONNECTION),
     MongooseModule.forFeature([{ name: Hashtag.name, schema: HashtagSchema }]),
   ],
@@ -46,5 +48,8 @@ export class AppModule {
     this.hashtagSeeder.seed()
       .then(() => { Logger.log("Seed success") })
       .catch(() => { Logger.log("Seed fail") })
+  }
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(LangMiddleware, AuthMiddleware).forRoutes('*');
   }
 }

@@ -21,8 +21,8 @@
  * or have any questions.
  */
 
-import { Module } from '@nestjs/common';
-import { CommonModule } from '@castcle-api/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { CommonModule, LangMiddleware } from '@castcle-api/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -45,4 +45,10 @@ import { JwtStrategy } from './strategy/jwt.strategy';
   controllers: [AppController],
   providers: [AppService, LocalStrategy, JwtStrategy],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LangMiddleware)
+      .forRoutes("*");
+  }
+}

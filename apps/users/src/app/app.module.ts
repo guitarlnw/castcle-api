@@ -21,9 +21,9 @@
  * or have any questions.
  */
 
-import { Logger, Module } from '@nestjs/common';
+import { Logger, Module, MiddlewareConsumer } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CommonModule } from '@castcle-api/common';
+import { CommonModule, LangMiddleware } from '@castcle-api/common';
 
 import { HealthModule } from './health/health.module';
 import { AppController } from './app.controller';
@@ -50,5 +50,10 @@ export class AppModule {
     this.userSeeder.seed()
       .then(() => { Logger.log("Seed success") })
       .catch(() => { Logger.log("Seed fail") })
+  }
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LangMiddleware)
+      .forRoutes("*");
   }
 }

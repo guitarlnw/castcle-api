@@ -1,11 +1,10 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { I18nModule, I18nJsonParser } from 'nestjs-i18n';
 import * as path from 'path';
 
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
-import { LangMiddleware } from './middleware/lang.middleware';
 
 @Module({
   imports: [
@@ -23,8 +22,4 @@ import { LangMiddleware } from './middleware/lang.middleware';
   ],
   exports: [],
 })
-export class CommonModule implements NestModule {
-  configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(LangMiddleware).forRoutes('*');
-  }
-}
+export class CommonModule { }
