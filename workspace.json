@@ -16,7 +16,12 @@
             "main": "apps/authentications/src/main.ts",
             "tsConfig": "apps/authentications/tsconfig.app.json",
             "assets": [
-              "apps/authentications/src/assets"
+              "apps/authentications/src/assets",
+              {
+                "glob": "**/*",
+                "input": "libs/common/src/assets/",
+                "output": "./assets/"
+              }
             ],
             "generatePackageJson": true
           },
