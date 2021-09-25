@@ -30,7 +30,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { LocalStrategy } from './strategy/local.strategy';
-import { jwtConstants } from './constants';
 import { JwtStrategy } from './strategy/jwt.strategy';
 
 @Module({
@@ -39,7 +38,7 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: jwtConstants.secret,
+      secret: process.env.JWT_SECRET_KEY,
       signOptions: { expiresIn: '1800s' },
     }),
   ],
