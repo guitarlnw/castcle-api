@@ -29,5 +29,6 @@ module.exports = {
     '<rootDir>/apps/feeds',
     '<rootDir>/apps/notifications',
     '<rootDir>/apps/searches',
+    '<rootDir>/libs/common',
   ],
 };

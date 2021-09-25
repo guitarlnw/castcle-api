@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
-import { APP_FILTER } from '@nestjs/core';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { I18nModule, I18nJsonParser } from 'nestjs-i18n';
 import * as path from 'path';
 
-import { CommonController } from './common.controller';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
+import { LangMiddleware } from './middleware/lang.middleware';
 
 @Module({
   imports: [
@@ -12,21 +13,18 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
       fallbackLanguage: 'en',
       parser: I18nJsonParser,
       parserOptions: {
-        path: path.join(__dirname),
+        path: path.join(__dirname, '/assets/i18n/'),
       },
     }),
   ],
-  controllers: [CommonController],
   providers: [
-    {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
-    },
+    { provide: APP_FILTER, useClass: HttpExceptionFilter },
+    { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },
   ],
   exports: [],
 })
-export class CommonModule {
-  constructor() {
-    console.log(path.join(__dirname, '/assets/i18n/'))
+export class CommonModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(LangMiddleware).forRoutes('*');
   }
 }

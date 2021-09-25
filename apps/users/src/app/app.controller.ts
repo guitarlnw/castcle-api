@@ -26,15 +26,12 @@ import {
   Get,
   NotFoundException,
   Param,
-  UseInterceptors,
 } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { GetUserDto } from './dto/get-user.dto';
-import { TransformInterceptor } from './interceptors/transform.interceptor';
 
 @Controller('users')
-@UseInterceptors(TransformInterceptor)
 export class AppController {
   constructor(
     private readonly appService: AppService,
