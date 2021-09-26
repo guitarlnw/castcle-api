@@ -21,11 +21,12 @@
  * or have any questions.
  */
 
-import { Logger, Module, MiddlewareConsumer } from '@nestjs/common';
+import { Logger, Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CommonModule, LangMiddleware } from '@castcle-api/common';
+import { TerminusModule } from '@nestjs/terminus';
 
-import { HealthModule } from './health/health.module';
+import { HealthController } from './health/health.controller';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserSeeder } from './database/seeders/user.seeder';
@@ -35,11 +36,14 @@ import { User, UserSchema } from './schemas/user.schema';
 @Module({
   imports: [
     CommonModule,
-    HealthModule,
+    TerminusModule,
     MongooseModule.forRoot(process.env.DB_CONNECTION),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
-  controllers: [AppController],
+  controllers: [
+    AppController,
+    HealthController,
+  ],
   providers: [
     AppService,
     UserSeeder,
@@ -54,6 +58,7 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(LangMiddleware)
-      .forRoutes("*");
+      .exclude({ path: '/health', method: RequestMethod.GET })
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

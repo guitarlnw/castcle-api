@@ -24,9 +24,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-function transformName(v) {
-  return v;
-}
+// function transformName(v) {
+//   return v;
+// }
 
 export type HashtagDocument = Hashtag & Document;
 
@@ -39,7 +39,11 @@ export class Hashtag {
   @Prop({ required: true, trim: true })
   slug: string;
 
-  @Prop({ required: true, trim: true, get: transformName })
+  @Prop({
+    required: true,
+    trim: true,
+    // get: transformName,
+  })
   name: string;
 
   @Prop({ required: true, trim: true })

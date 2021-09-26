@@ -28,7 +28,7 @@ import { HealthCheckService, MongooseHealthIndicator } from '@nestjs/terminus';
 describe('HealthController', () => {
   let controller: HealthController;
   const mockPingCheck = jest.fn((dbName) => dbName)
-  const mockHealthCheckService = { check: (arr) => arr }
+  const mockHealthCheckService = { check: (arr) => arr[0]() }
   const mockMongooseHealthIndicator = { pingCheck: mockPingCheck }
 
   beforeEach(async () => {
@@ -50,8 +50,10 @@ describe('HealthController', () => {
   });
 
   it('should call mongoose.pingCheck with "mongoose" one time when HealthCheck was called', async () => {
-    await controller.check()[0]()
+    mockPingCheck.mockImplementationOnce(() => ({ status: "ok" }))
+    const result = await controller.check()
     expect(mockPingCheck).toHaveBeenCalledTimes(1)
     expect(mockPingCheck).toHaveBeenCalledWith('mongoose')
+    expect(result).toEqual({ payload: { status: 'ok' } })
   });
 });

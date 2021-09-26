@@ -2,7 +2,7 @@ import { Controller, Get, Query, ParseIntPipe, InternalServerErrorException } fr
 import { HashtagService } from './hashtag.service';
 import { ResponsePaginate } from '../utils/pagination.utils';
 
-@Controller('metadata/hashtags')
+@Controller(`${process.env.API_VERSION}/metadata/hashtags`)
 export class HashtagController {
   constructor(private hashtagService: HashtagService) { }
 

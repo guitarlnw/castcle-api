@@ -31,7 +31,7 @@ import {
 import { AppService } from './app.service';
 import { GetUserDto } from './dto/get-user.dto';
 
-@Controller('users')
+@Controller(`${process.env.API_VERSION}/users`)
 export class AppController {
   constructor(
     private readonly appService: AppService,

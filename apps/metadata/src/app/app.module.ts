@@ -21,11 +21,12 @@
  * or have any questions.
  */
 
-import { Module, Logger, MiddlewareConsumer, HttpModule } from '@nestjs/common';
+import { Module, Logger, MiddlewareConsumer, HttpModule, RequestMethod } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CommonModule, LangMiddleware } from '@castcle-api/common';
+import { TerminusModule } from '@nestjs/terminus';
 
-import { HealthModule } from './health/health.module';
+import { HealthController } from './health/health.controller';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HashtagSeeder } from './database/seeders/hashtag.seeder';
@@ -36,15 +37,16 @@ import { HashtagController } from './hashtag/hashtag.controller';
 
 @Module({
   imports: [
-    HealthModule,
     CommonModule,
     HttpModule,
+    TerminusModule,
     MongooseModule.forRoot(process.env.DB_CONNECTION),
     MongooseModule.forFeature([{ name: Hashtag.name, schema: HashtagSchema }]),
   ],
   controllers: [
     AppController,
     HashtagController,
+    HealthController,
   ],
   providers: [
     AppService,
@@ -59,6 +61,9 @@ export class AppModule {
       .catch(() => { Logger.log("Seed fail") })
   }
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(LangMiddleware, AuthMiddleware).forRoutes('*');
+    consumer
+      .apply(LangMiddleware, AuthMiddleware)
+      .exclude({ path: '/health', method: RequestMethod.GET })
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }

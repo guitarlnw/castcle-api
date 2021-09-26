@@ -6,10 +6,11 @@ export interface PaginateConfig {
 export interface ResponsePaginate {
   payload: any,
   pagination: {
-    previous: number,
+    previous?: number,
     self: number,
-    next: number,
-    limit: number
+    next?: number,
+    limit: number,
+    total: number,
   },
 }
 
@@ -32,6 +33,7 @@ export const getPagination = async (model: any, page: number, limit): Promise<Re
         self: page,
         next: total - (page * limit) >= limit ? page + 1 : undefined,
         limit,
+        total,
       },
     }
     return response

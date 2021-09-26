@@ -33,12 +33,13 @@ export class HealthController {
 
   @Get()
   @HealthCheck()
-  check() {
-    return this.health.check([
+  async check() {
+    const result = await this.health.check([
       async () => {
         return this.mongoose.pingCheck('mongoose')
       }
     ]);
+    return { payload: result }
   }
 }
 

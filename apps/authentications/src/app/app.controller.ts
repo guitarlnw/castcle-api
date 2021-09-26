@@ -26,7 +26,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
-@Controller()
+@Controller(process.env.API_VERSION)
 export class AppController {
   constructor(private appService: AppService) { }
 
@@ -39,7 +39,7 @@ export class AppController {
 
   @UseGuards(JwtAuthGuard)
   @Get('auth')
-  getProfile() {
+  auth() {
     return { message: 'Authorized' };
   }
 }

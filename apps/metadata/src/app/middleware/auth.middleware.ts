@@ -23,7 +23,7 @@ export class AuthMiddleware implements NestMiddleware {
         };
         await this.httpService.get(`${process.env.AUTH_URL}/auth`, { headers: headersRequest }).toPromise();
         next();
-      } catch (err) {
+      } catch {
         throw new UnauthorizedException()
       }
     } else {

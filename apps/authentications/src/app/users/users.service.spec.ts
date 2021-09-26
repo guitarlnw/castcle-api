@@ -21,51 +21,54 @@
  * or have any questions.
  */
 
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
+import { HttpService } from '@nestjs/common';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { UsersService } from './users.service';
 
-describe('AppController', () => {
-  let appController: AppController
+describe('UsersService', () => {
+  let service: UsersService;
 
-  const mockLoginService = jest.fn()
-  const mockService = {
-    login: mockLoginService,
+  const mockHttpGet = jest.fn()
+  const mockHttpService = {
+    get: () => ({
+      toPromise: mockHttpGet
+    })
   }
 
   beforeAll(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
+    const app = await Test.createTestingModule({
       providers: [
+        UsersService,
         {
-          provide: AppService,
-          useValue: mockService,
+          provide: HttpService,
+          useValue: mockHttpService,
         },
       ],
     }).compile();
-    appController = app.get<AppController>(AppController);
+
+    service = app.get<UsersService>(UsersService);
   });
 
   beforeEach(() => {
     jest.resetAllMocks()
   })
 
-  describe('login', () => {
-    it('should return payload and message when controller.login is called ', async () => {
-      const mockReq = { user: { id: 'xxx' } }
-      mockLoginService.mockImplementation(() => mockReq.user)
-      const result = await appController.login(mockReq)
-      expect(result).toEqual({ payload: mockReq.user, message: 'Logged in' })
-      expect(mockLoginService).toHaveBeenCalledTimes(1)
-      expect(mockLoginService).toHaveBeenCalledWith(mockReq.user)
+  describe('getUserByEmail', () => {
+    it('should return user info when email is correct', async () => {
+      mockHttpGet.mockImplementationOnce(() => ({
+        data: { payload: { id: 'xxx' } }
+      }))
+      const result = await service.getUserByEmail('castcle@mail.com')
+      expect(result).toEqual({ id: 'xxx' })
+      expect(mockHttpGet).toHaveBeenCalledTimes(1)
     });
-  });
 
-  describe('auth', () => {
-    it('should return message when controller.auth is called ', () => {
-      const result = appController.auth()
-      expect(result).toEqual({ message: 'Authorized' })
+    it('should return null when email is incorrect', async () => {
+      mockHttpGet.mockImplementationOnce(() => { throw new Error() })
+      const result = await service.getUserByEmail('castcle@mail.com')
+      expect(result).toEqual(null)
+      expect(mockHttpGet).toHaveBeenCalledTimes(1)
     });
   });
 });
